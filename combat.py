@@ -37,6 +37,9 @@ class Combat(gym.Env):
     health points of the enemy team, which encourages it to attack enemy bots.
     Reference : Learning Multiagent Communication with Backpropagation
     Url : https://papers.nips.cc/paper/6398-learning-multiagent-communication-with-backpropagation.pdf
+
+    HS comment:
+    Agent observation is actually: (id, type_id, hp, cool, x, y)
     """
     metadata = {'render.modes': ['human', 'rgb_array']}
 
@@ -115,7 +118,8 @@ class Combat(gym.Env):
             for row in range(0, 5):
                 for col in range(0, 5):
                     if self.is_valid([row + (pos[0] - 2), col + (pos[1] - 2)]) and (
-                            PRE_IDS['empty'] not in self._full_obs[row + (pos[0] - 2)][col + (pos[1] - 2)]):
+                            PRE_IDS['empty'] not in self._full_obs[row + (pos[0] - 2)][col + (pos[1] - 2)]) and (
+                            self.agent_health[agent_i] > 0): # check if dead
                         x = self._full_obs[row + pos[0] - 2][col + pos[1] - 2]
                         _type = 1 if PRE_IDS['agent'] in x else -1
                         _id = int(x[1:]) - 1  # id
@@ -141,7 +145,7 @@ class Combat(gym.Env):
         self._base_img = draw_grid(self._grid_shape[0], self._grid_shape[1], cell_size=CELL_SIZE, fill='white')
 
     def __update_agent_view(self, agent_i):
-        self._full_obs[self.agent_prev_pos[agent_i][0]][self.agent_prev_pos[agent_i][1]] = PRE_IDS['empty']
+        #self._full_obs[self.agent_prev_pos[agent_i][0]][self.agent_prev_pos[agent_i][1]] = PRE_IDS['empty']
         self._full_obs[self.agent_pos[agent_i][0]][self.agent_pos[agent_i][1]] = PRE_IDS['agent'] + str(agent_i + 1)
 
     def __update_opp_view(self, opp_i):
