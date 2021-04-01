@@ -8,8 +8,7 @@ import numpy as np
 from gym import spaces
 from gym.utils import seeding
 
-from utils import MultiAgentActionSpace
-from utils import MultiAgentObservationSpace
+from utils import MultiAgentActionSpace, MultiAgentObservationSpace
 from utils import draw_grid, fill_cell, write_cell_text
 
 logger = logging.getLogger(__name__)
@@ -115,7 +114,6 @@ class Combat(gym.Env):
             _agent_i_obs = np.zeros((6, 5, 5))
             for row in range(0, 5):
                 for col in range(0, 5):
-
                     if self.is_valid([row + (pos[0] - 2), col + (pos[1] - 2)]) and (
                             PRE_IDS['empty'] not in self._full_obs[row + (pos[0] - 2)][col + (pos[1] - 2)]):
                         x = self._full_obs[row + pos[0] - 2][col + pos[1] - 2]
@@ -123,8 +121,8 @@ class Combat(gym.Env):
                         _id = int(x[1:]) - 1  # id
                         _agent_i_obs[0][row][col] = _type
                         _agent_i_obs[1][row][col] = _id
-                        _agent_i_obs[2][row][col] = self.agent_health[_id] if type == 1 else self.opp_health[_id]
-                        _agent_i_obs[3][row][col] = self._agent_cool[_id] if type == 1 else self._opp_cool[_id]
+                        _agent_i_obs[2][row][col] = self.agent_health[_id] if _type == 1 else self.opp_health[_id]
+                        _agent_i_obs[3][row][col] = self._agent_cool[_id] if _type == 1 else self._opp_cool[_id]
                         _agent_i_obs[3][row][col] = 1 if _agent_i_obs[3][row][col] else -1  # cool/uncool
 
                         _agent_i_obs[4][row][col] = pos[0] / self._grid_shape[0]  # x-coordinate
