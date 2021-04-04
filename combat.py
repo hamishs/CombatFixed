@@ -173,6 +173,7 @@ class Combat(gym.Env):
                     break
 
         # select opponent team center
+
         while True:
             pos = self.np_random.randint(2, self._grid_shape[0] - 3), self.np_random.randint(2, self._grid_shape[1] - 3)
             if self._full_obs[pos[0]][pos[1]] == PRE_IDS['empty']:
@@ -180,15 +181,31 @@ class Combat(gym.Env):
                 break
 
         # randomly select opponent pos
+        '''
+        Edited to prevent getting stuck in an infinite loop when no positions are available.
+        Changed to try n times then to expand the radius considered for positions.
+        '''
+        max_attempts = 25
         for opp_i in range(self._n_opponents):
+            count_ = 0
+            radius = 2
             while True:
-                pos = [self.np_random.randint(opp_team_center[0] - 2, opp_team_center[0] + 2),
-                       self.np_random.randint(opp_team_center[1] - 2, opp_team_center[1] + 2)]
+                r_min = np.maximum(opp_team_center[0] - radius, 0)
+                r_max = np.minimum(opp_team_center[0] + radius, self._grid_shape[0])
+                c_min = np.maximum(opp_team_center[1] - radius, 0)
+                c_max = np.minimum(opp_team_center[1] + radius, self._grid_shape[1])
+                pos = [self.np_random.randint(r_min, r_max),
+                       self.np_random.randint(c_min, c_max)]
                 if self._full_obs[pos[0]][pos[1]] == PRE_IDS['empty']:
                     self.opp_prev_pos[opp_i] = pos
                     self.opp_pos[opp_i] = pos
                     self.__update_opp_view(opp_i)
                     break
+                else:
+                    count_ += 1
+                if count_ >= max_attempts:
+                    radius += 1
+                    count_ = 0
 
         self.__draw_base_img()
 
